@@ -1,398 +1,108 @@
-# React Advance Notes
+# React Advanced Notes
 
-## Table of Contents
-1. Higher-Order Components (HOCs)
-2. Render Props
-3. Portals
-4. Error Boundaries
-5. React Refs
-6. React Suspense and Lazy Loading
-7. Context API with Advanced Use Cases
-8. State Management with Redux
-9. Server-Side Rendering (SSR) with Next.js
-10. Static Site Generation (SSG)
-11. Code Splitting and Dynamic Import
-12. React Performance Optimization Techniques
-13. Testing React Applications
-14. Integrating React with TypeScript
-15. Advanced Hooks
-16. Custom Hooks
-17. Animations in React
-18. Summary and Best Practices
+### 1. **Higher-Order Components (HOC)**
+A Higher-Order Component is a function that takes a component as an argument and returns a new component. It is a pattern for reusing component logic.
 
----
+Key Points:
+- Used to share behavior between components.
+- Commonly used for tasks like authentication, logging, or handling subscriptions.
+- Follow naming conventions like `with` (e.g., `withAuth`, `withLogging`).
 
-## 1. Higher-Order Components (HOCs)
-- **What are HOCs?**
-  - A function that takes a component and returns a new component.
-  - Used for reusing component logic.
+### 2. **Context API**
+The Context API allows you to share state across the component tree without passing props manually at every level. It is useful for global state management, such as theme, user authentication, or language settings.
 
-- **Example**:
-  ```jsx
-  function withLogging(WrappedComponent) {
-    return function LoggingComponent(props) {
-      console.log("Props:", props);
-      return <WrappedComponent {...props} />;
-    };
-  }
+Key Points:
+- Avoids "prop drilling."
+- Includes `React.createContext`, `Provider`, and `Consumer`.
+- Works well with `useContext` for easier consumption.
 
-  const EnhancedComponent = withLogging(MyComponent);
-  ```
+### 3. **React Portals**
+Portals allow you to render children into a DOM node outside the parent component hierarchy. They are useful for modals, tooltips, or dropdowns.
 
-- **Use Cases**:
-  - Adding logging or analytics.
-  - Conditional rendering.
+Key Points:
+- Use `ReactDOM.createPortal` to render components into a different DOM subtree.
+- Enables better control of CSS styles and z-index.
 
----
+### 4. **Error Boundaries**
+Error Boundaries catch JavaScript errors in the component tree and display fallback UI. They are implemented using class components.
 
-## 2. Render Props
-- **What is Render Props?**
-  - A technique for sharing code between components using a prop whose value is a function.
+Key Points:
+- Use `componentDidCatch` and `getDerivedStateFromError` methods.
+- Useful for logging errors and preventing UI crashes.
+- Cannot catch errors in event handlers or async code.
 
-- **Example**:
-  ```jsx
-  function DataFetcher({ render }) {
-    const [data, setData] = useState(null);
+### 5. **Code Splitting**
+Code splitting helps improve performance by splitting the application into smaller bundles that can be loaded on demand. React supports this through dynamic imports.
 
-    useEffect(() => {
-      fetch("/api/data")
-        .then((response) => response.json())
-        .then(setData);
-    }, []);
+Key Points:
+- Use `React.lazy` and `Suspense` for lazy loading components.
+- Improves initial load time by loading only the required parts of the application.
 
-    return render(data);
-  }
+### 6. **Custom Hooks**
+Custom hooks allow you to reuse stateful logic across components. They are functions that start with the prefix `use` and can utilize other hooks internally.
 
-  function App() {
-    return (
-      <DataFetcher render={(data) => (data ? <div>{data.name}</div> : <p>Loading...</p>)} />
-    );
-  }
-  ```
+Key Points:
+- Encapsulate complex logic into reusable functions.
+- Help maintain cleaner and more modular code.
 
-- **Advantages**:
-  - Makes components more flexible and reusable.
+### 7. **Redux Integration**
+Redux is a state management library commonly used with React for managing global state.
 
----
+Key Points:
+- Centralizes application state in a single store.
+- Actions describe state changes; reducers specify how state updates.
+- Use libraries like `react-redux` for seamless integration.
 
-## 3. Portals
-- **What are Portals?**
-  - Used to render children into a DOM node outside the parent component hierarchy.
+### 8. **React Router**
+React Router enables navigation and routing in React applications. It allows for dynamic rendering of components based on the URL.
 
-- **Example**:
-  ```jsx
-  import ReactDOM from "react-dom";
+Key Points:
+- Supports declarative routing through `<Route>` and `<Link>` components.
+- Includes hooks like `useHistory`, `useParams`, and `useLocation`.
+- Nested and dynamic routes enhance flexibility.
 
-  function Modal({ children }) {
-    return ReactDOM.createPortal(
-      <div className="modal">{children}</div>,
-      document.getElementById("modal-root")
-    );
-  }
-  ```
+### 9. **Server-Side Rendering (SSR)**
+SSR renders React components on the server, sending the HTML to the browser instead of a JavaScript bundle. Frameworks like Next.js simplify SSR.
 
-- **Use Cases**:
-  - Modals, tooltips, and popups.
+Key Points:
+- Improves SEO and initial load time.
+- Reduces the "time-to-first-byte" (TTFB).
+- Requires handling data fetching and hydration.
+
+### 10. **Static Site Generation (SSG)**
+SSG generates HTML pages at build time, which are served statically. It is ideal for content-heavy websites and blogs.
+
+Key Points:
+- Supported by frameworks like Next.js.
+- Pages are pre-rendered with data fetched at build time.
 
 ---
 
-## 4. Error Boundaries
-- **What are Error Boundaries?**
-  - Components that catch JavaScript errors in their child component tree and display a fallback UI.
+## Performance Optimization
 
-- **Example**:
-  ```jsx
-  class ErrorBoundary extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
-    }
+### 1. **React.memo**
+`React.memo` is a higher-order component that prevents unnecessary re-renders by memoizing the rendered output.
 
-    static getDerivedStateFromError() {
-      return { hasError: true };
-    }
+Key Points:
+- Used for functional components.
+- Compare props to decide if re-rendering is needed.
+- Avoid overusing as it can introduce complexity.
 
-    componentDidCatch(error, info) {
-      console.error(error, info);
-    }
+### 2. **useCallback and useMemo**
+- **`useCallback`**: Memoizes functions to prevent unnecessary re-creations.
+- **`useMemo`**: Memoizes values to prevent unnecessary recalculations.
 
-    render() {
-      if (this.state.hasError) {
-        return <h1>Something went wrong.</h1>;
-      }
+### 3. **Virtual DOM Diffing**
+React uses a Virtual DOM to optimize updates by comparing the previous and new versions of the UI and applying the minimal changes to the real DOM.
 
-      return this.props.children;
-    }
-  }
-  ```
+### 4. **Lazy Loading**
+Load components or assets only when needed to improve performance and reduce initial load time.
 
 ---
 
-## 5. React Refs
-- **What are Refs?**
-  - Provide a way to access DOM nodes or React elements directly.
-
-- **Example**:
-  ```jsx
-  function TextInputWithFocusButton() {
-    const inputRef = useRef(null);
-
-    const focusInput = () => {
-      inputRef.current.focus();
-    };
-
-    return (
-      <div>
-        <input ref={inputRef} type="text" />
-        <button onClick={focusInput}>Focus Input</button>
-      </div>
-    );
-  }
-  ```
-
----
-
-## 6. React Suspense and Lazy Loading
-- **Suspense**:
-  - Allows you to handle loading states declaratively.
-
-- **Lazy Loading Components**:
-  ```jsx
-  const LazyComponent = React.lazy(() => import("./LazyComponent"));
-
-  function App() {
-    return (
-      <React.Suspense fallback={<div>Loading...</div>}>
-        <LazyComponent />
-      </React.Suspense>
-    );
-  }
-  ```
-
----
-
-## 7. Context API with Advanced Use Cases
-- **Dynamic Themes**:
-  ```jsx
-  const ThemeContext = React.createContext();
-
-  function App() {
-    const [theme, setTheme] = useState("light");
-
-    return (
-      <ThemeContext.Provider value={{ theme, setTheme }}>
-        <Toolbar />
-      </ThemeContext.Provider>
-    );
-  }
-
-  function Toolbar() {
-    const { theme, setTheme } = useContext(ThemeContext);
-
-    return (
-      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
-        Toggle Theme
-      </button>
-    );
-  }
-  ```
-
----
-
-## 8. State Management with Redux
-- **Core Concepts**:
-  - **Store**: Holds the application state.
-  - **Actions**: Describe changes.
-  - **Reducers**: Pure functions that update state.
-
-- **Example**:
-  ```jsx
-  import { createStore } from "redux";
-
-  function counterReducer(state = { count: 0 }, action) {
-    switch (action.type) {
-      case "INCREMENT":
-        return { count: state.count + 1 };
-      default:
-        return state;
-    }
-  }
-
-  const store = createStore(counterReducer);
-
-  store.dispatch({ type: "INCREMENT" });
-  console.log(store.getState());
-  ```
-
----
-
-## 9. Server-Side Rendering (SSR) with Next.js
-- **What is SSR?**
-  - Renders React components on the server and sends HTML to the client.
-
-- **Benefits**:
-  - Improves SEO.
-  - Faster initial page loads.
-
-- **Example**:
-  ```jsx
-  export async function getServerSideProps() {
-    const res = await fetch("https://api.example.com/data");
-    const data = await res.json();
-
-    return { props: { data } };
-  }
-
-  function Page({ data }) {
-    return <div>{data.title}</div>;
-  }
-
-  export default Page;
-  ```
-
----
-
-## 10. Static Site Generation (SSG)
-- **Example**:
-  ```jsx
-  export async function getStaticProps() {
-    const res = await fetch("https://api.example.com/data");
-    const data = await res.json();
-
-    return { props: { data } };
-  }
-
-  function Page({ data }) {
-    return <div>{data.title}</div>;
-  }
-
-  export default Page;
-  ```
-
----
-
-## 11. Code Splitting and Dynamic Import
-- **Dynamic Import**:
-  ```jsx
-  const OtherComponent = React.lazy(() => import("./OtherComponent"));
-  ```
-
----
-
-## 12. React Performance Optimization Techniques
-- **Tips**:
-  - Use `React.memo`.
-  - Avoid inline functions in render.
-  - Use `useCallback` and `useMemo`.
-  - Optimize large lists with `react-window` or `react-virtualized`.
-
----
-
-## 13. Testing React Applications
-- **Tools**:
-  - Jest
-  - React Testing Library
-
-- **Example**:
-  ```jsx
-  test("renders a message", () => {
-    render(<App />);
-    expect(screen.getByText("Hello, world!")).toBeInTheDocument();
-  });
-  ```
-
----
-
-## 14. Integrating React with TypeScript
-- **Advantages**:
-  - Improved type safety.
-  - Better tooling and error checking.
-
-- **Example**:
-  ```tsx
-  type Props = {
-    name: string;
-  };
-
-  function Greeting({ name }: Props) {
-    return <h1>Hello, {name}!</h1>;
-  }
-  ```
-
----
-
-## 15. Advanced Hooks
-- **`useReducer`**:
-  - Alternative to `useState` for complex state logic.
-
-- **Example**:
-  ```jsx
-  const initialState = { count: 0 };
-
-  function reducer(state, action) {
-    switch (action.type) {
-      case "increment":
-        return { count: state.count + 1 };
-      default:
-        return state;
-    }
-  }
-
-  function Counter() {
-    const [state, dispatch] = useReducer(reducer, initialState);
-
-    return (
-      <div>
-        <p>Count: {state.count}</p>
-        <button onClick={() => dispatch({ type: "increment" })}>Increment</button>
-      </div>
-    );
-  }
-  ```
-
----
-
-## 16. Custom Hooks
-- **What are Custom Hooks?**
-  - Reusable logic extracted into a function.
-
-- **Example**:
-  ```jsx
-  function useFetch(url) {
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-      fetch(url)
-        .then((response) => response.json())
-        .then(setData);
-    }, [url]);
-
-    return data;
-  }
-  ```
-
----
-
-## 17. Animations in React
-- **Tools**:
-  - `react-spring`
-  - `framer-motion`
-
-- **Example with `framer-motion`**:
-  ```jsx
-  import { motion } from "framer-motion";
-
-  function Box() {
-    return <motion.div animate={{ x: 100 }} />;
-  }
-  ```
-
----
-
-## 18. Summary and Best Practices
-- Write clean and readable code.
-- Use functional components with Hooks.
-- Optimize rendering with `React.memo` and `useMemo`.
-- Test your components thoroughly.
-- Follow a consistent folder structure.
-
+## Helpful Libraries and Tools
+1. **Redux Toolkit**: Simplifies Redux setup and reduces boilerplate code.
+2. **React Query**: Manages server state with caching and automatic refetching.
+3. **Formik and Yup**: Simplifies form validation and management.
+4. **Next.js**: Enhances React with built-in SSR, SSG, and API routes.
+5. **Framer Motion**: Adds animations to React components.
