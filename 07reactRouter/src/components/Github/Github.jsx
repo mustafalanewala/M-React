@@ -14,9 +14,18 @@ function Github() {
     // }, [])
     
   return (
-    <div className='text-center m-4 bg-gray-600 text-white p-4 text-3xl'>Github followers: {data.followers}
-    <img src={data.avatar_url} alt="Git picture" width={300} />
+    <div className="flex flex-col items-center justify-center min-h-screen text-black p-6">
+    <h1 className="text-4xl font-bold mb-6">GitHub Profile</h1>
+    <div className="flex flex-col items-center bg-orange-700 p-6 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105">
+        <img
+            src={data.avatar_url}
+            alt="GitHub Avatar"
+            className="w-48 h-48 rounded-full mb-4 object-cover transition-opacity duration-300 hover:opacity-80"
+        />
+        <p className="text-2xl font-semibold mb-2">Username: {data.login}</p>
+        <p className="text-xl">Followers: {data.followers}</p>
     </div>
+</div>
   )
 }
 
